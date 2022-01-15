@@ -13,7 +13,7 @@ function playRound(playerSelection, computerSelection) {
     playerSelection = playerSelection.toLowerCase();
     computerSelection = computerSelection.toLowerCase();
 
-    console.table({playerSelection: playerSelection, computerSelection: computerSelection});
+    // console.table({playerSelection: playerSelection, computerSelection: computerSelection});
 
     switch (true) {
         // Lose conditions with fall-through
@@ -30,34 +30,68 @@ function playRound(playerSelection, computerSelection) {
     }
 }
 
-function game() {
-    let playerScore = 0;
-    let computerScore = 0;
 
-    for (let i = 0; i < 5; i++) {
-        const playerSelection = prompt("What do you choose?");
-        // TODO: Input error handling
+let playerScore = 0;
+let computerScore = 0;
+let rounds = 0;
 
-        const computerSelection = computerPlay();
-
-        const roundResult = playRound(playerSelection, computerSelection);
-        if (roundResult.startsWith('You win!')) playerScore++;
-        else if (roundResult.startsWith('You lose')) computerScore++;
-
-        console.log(roundResult);
-    }
-
-    let gameOverMessage = 'Game over! ';
-    if (playerScore > computerScore) {
-        gameOverMessage += `You won with ${playerScore} - ${computerScore}`;
-    } else if (computerScore > playerScore) {
-        gameOverMessage += `You lost with ${playerScore} - ${computerScore}`;
-    } else {
-        gameOverMessage = `You tied with ${playerScore} - ${computerScore}`
-    }
-
-    console.log(gameOverMessage);
+function updateStatus(statusMessage) {
+    const statusElement = document.querySelector('#status');
+    statusElement.textContent = statusMessage;
 }
 
-game();
+function updatePoints() {
+    const playerP = document.querySelector("#player-points");
+    const computerP = document.querySelector("#computer-points");
 
+    playerP.textContent = playerScore;
+    computerP.textContent = computerScore;
+}
+
+function resetGame() {
+    playerScore = 0;
+    computerScore = 0;
+    rounds = 0;
+    updatePoints();
+    updateStatus('Make your choice! 😃');
+}
+
+function pressBtn(e) {
+
+    // TODO: Add reset game logic
+    if (rounds === 5) return;
+
+    rounds++;
+
+    const playerSelection = e.target.value;
+    const computerSelection = computerPlay();
+
+    let statusMessage = playRound(playerSelection, computerSelection);
+    if (statusMessage.startsWith('You win!')) playerScore++;
+    else if (statusMessage.startsWith('You lose')) computerScore++;
+
+    // Game Over logic
+    if (rounds === 5) {
+        statusMessage += '. Game over! ';
+        if (playerScore > computerScore) {
+            statusMessage += `You won with ${playerScore} - ${computerScore}`;
+        } else if (computerScore > playerScore) {
+            statusMessage += `You lost with ${playerScore} - ${computerScore}`;
+        } else {
+            statusMessage += `You tied with ${playerScore} - ${computerScore}`
+        }
+    }
+
+    updatePoints();
+    updateStatus(statusMessage);
+}
+
+
+
+const buttons = document.querySelectorAll('button');
+buttons.forEach((button) => {
+    button.addEventListener('click', pressBtn);
+});
+
+const reset = document.querySelector("#restart")
+reset.addEventListener('click', resetGame);
